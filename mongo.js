@@ -4,10 +4,25 @@ mongoose.connect(url)
   .then(() => console.log('connected to MongoDB'))
   .catch(err => console.log('error connecting to MongoDB:', err.message))
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{2,3}-\d+$/.test(v) && v.length >= 8
+      },
+      
+    }
+  }
 })
 const Person = mongoose.model('Person', personSchema)
+if (require.main === module) {
+  
 const name = process.argv[2]
 const number = process.argv[3]
 //if i didnot give it the name or any argument he will list what is in the phonebook//
@@ -28,5 +43,6 @@ else if (!number) {
   person.save().then(() => {
     console.log(`successfully added ${name} number ${number} to phonebook`)
     mongoose.connection.close()
-  })
+  })}
 }
+module.exports = Person
